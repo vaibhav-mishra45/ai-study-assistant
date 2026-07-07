@@ -4,7 +4,8 @@ from rich.table import Table
 from rich import print
 from rich.panel import Panel
 import sys
-from studyManager import add_subject, delete_subject, display_subjects  , rename_subject
+from studyManager import add_subject, delete_subject, display_subjects , rename_subject
+from studyManager import add_topic, del_topic, rename_t, display_topics
 
 console = Console()
 def main():
@@ -26,9 +27,6 @@ def main():
             print("[bold red]Exiting the program. Goodbye![/bold red]")
             sys.exit()
    
-        
-        
-
 def main_menu():
     print((Panel(Align.center("AI Study Assistant"), subtitle="Your Personal Learning Companion", style="bold green")))
 
@@ -88,6 +86,20 @@ def subject_management_menu():
     table = Align.center(table)
     console.print(table)
 
+def topic_management_menu():
+    print((Panel(Align.center("Topic Management"), subtitle="Welcome to Topic Management Module", style="bold green")))
+    table = Table(title="Sub Menu")
+    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Description", style="magenta")
+    table.add_row("1", "Add Topic")
+    table.add_row("2", "Delete Topic")
+    table.add_row("3", "Display Topics")
+    table.add_row("4", "Rename Topic")
+    table.add_row("0", "Back")
+
+    table = Align.center(table)
+    console.print(table)
+
 def subject_management():
     subject_management_menu()
     while True:
@@ -112,9 +124,24 @@ def study_management():
         elif sub_option == 1:
             subject_management()
         elif sub_option == 2:
-            print("[bold green]You selected Topic Management.[/bold green]")
+            topic_management()
         elif sub_option == 3:
             print("[bold green]You selected Notes Management.[/bold green]")
-                
+
+def topic_management():
+    topic_management_menu()
+    while True:
+        sub_option2 = choose_option(4)
+        if sub_option2 == 0:
+            break
+        elif sub_option2 == 1:
+            add_topic()
+        elif sub_option2 == 2:
+            del_topic()
+        elif sub_option2 == 3:
+            display_topics()
+        elif sub_option2 == 4:
+            rename_t()
+
 if __name__ == "__main__":
     main()
