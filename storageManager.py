@@ -4,7 +4,7 @@ from rich.table import Table
 
 SUBJECT_FILE = 'data/subjects.json'
 
-def load_data(file_path):
+def load_data(file_path = SUBJECT_FILE):
     with open(file_path, 'r') as f:
         data = json.load(f)
         return data
@@ -84,7 +84,7 @@ def save_topic(subject_name, topic_name):
             if any(t.get('name').lower() == topic_name.lower() for t in subject['topics']):
                 print(f"[red]Topic '{topic_name}' already exists under subject '{subject_name}'![/red]")
                 return
-            new_topic = {"name": topic_name}
+            new_topic = {"name": topic_name, "note": ""}
             subject['topics'].append(new_topic)
             write_data(SUBJECT_FILE, data)
             print(f"[green]Added topic '{topic_name}' under subject '{subject_name}'[/green]")
@@ -122,4 +122,51 @@ def rename_topic(subject_name, old_topic_name, new_topic_name):
             print(f"[green]Renamed topic '{old_topic_name}' to '{new_topic_name}' under subject '{subject_name}'[/green]")
             return
     print(f"[red]Subject '{subject_name}' not found![/red]")
+
+def add_edit_note(subject_name, topic_name, note_content):
+    data = load_data(SUBJECT_FILE)
+    for subject in data.get('subjects', []):
+        if subject.get('name').lower() == subject_name.lower():
+            for topic in subject.get('topics', []):
+                if topic.get('name').lower() == topic_name.lower():
+                    topic['note'] = note_content
+                    write_data(SUBJECT_FILE, data)
+                    print(f"[green]Added/Updated note for topic '{topic_name}' under subject '{subject_name}'[/green]")
+                    return
+            print(f"[red]Topic '{topic_name}' not found under subject '{subject_name}'![/red]")
+            return
+    print(f"[red]Subject '{subject_name}' not found![/red]")
+
+
+def delete_note(subject_name, topic_name):
+    data = load_data(SUBJECT_FILE)
+    for subject in data.get('subjects', []):
+        if subject.get('name').lower() == subject_name.lower():
+            for topic in subject.get('topics', []):
+                if topic.get('name').lower() == topic_name.lower():
+                    topic['note'] = ""
+                    write_data(SUBJECT_FILE, data)
+                    print(f"[green]Deleted note for topic '{topic_name}' under subject '{subject_name}'[/green]")
+                    return
+            print(f"[red]Topic '{topic_name}' not found under subject '{subject_name}'![/red]")
+            return
+    print(f"[red]Subject '{subject_name}' not found![/red]")
+
+
+def display_note(subject_name, topic_name):
+    data = load_data(SUBJECT_FILE)
+    for subject in data.get('subjects', []):
+        if subject.get('name').lower() == subject_name.lower():
+            for topic in subject.get('topics', []):
+                if topic.get('name').lower() == topic_name.lower():
+                    note_content = topic.get('note', "")
+                    if note_content:
+                        print(f"[bold green]Note for topic '{topic_name}' under subject '{subject_name}':[/bold green]\n{note_content}")
+                    else:
+                        print(f"[red]No note found for topic '{topic_name}' under subject '{subject_name}'[/red]")
+                    return
+            print(f"[red]Topic '{topic_name}' not found under subject '{subject_name}'![/red]")
+            return
+    print(f"[red]Subject '{subject_name}' not found![/red]")
+
 

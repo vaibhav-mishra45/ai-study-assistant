@@ -4,8 +4,9 @@ from rich.table import Table
 from rich import print
 from rich.panel import Panel
 import sys
-from studyManager import add_subject, delete_subject, display_subjects , rename_subject
-from studyManager import add_topic, del_topic, rename_t, display_topics
+from studyManager import add_subject, delete_subject, display_subjects, display_topics , rename_subject
+from studyManager import add_topic, del_topic, rename_t
+from studyManager import add_edit_note_, delete_note_, display_note_
 
 console = Console()
 def main():
@@ -100,6 +101,19 @@ def topic_management_menu():
     table = Align.center(table)
     console.print(table)
 
+def notes_management_menu():
+    print((Panel(Align.center("Notes Management"), subtitle="Welcome to Notes Management Module", style="bold green")))
+    table = Table(title="Sub Menu")
+    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
+    table.add_column("Description", style="magenta")
+    table.add_row("1", "Add/Edit Note")
+    table.add_row("2", "Delete Note")
+    table.add_row("3", "View Note")
+    table.add_row("0", "Back")
+
+    table = Align.center(table)
+    console.print(table)
+
 def subject_management():
     subject_management_menu()
     while True:
@@ -126,7 +140,7 @@ def study_management():
         elif sub_option == 2:
             topic_management()
         elif sub_option == 3:
-            print("[bold green]You selected Notes Management.[/bold green]")
+            notes_management()
 
 def topic_management():
     topic_management_menu()
@@ -142,6 +156,19 @@ def topic_management():
             display_topics()
         elif sub_option2 == 4:
             rename_t()
+
+def notes_management():
+    notes_management_menu()
+    while True:
+        sub_option2 = choose_option(3)
+        if sub_option2 == 0:
+            break
+        elif sub_option2 == 1:
+            add_edit_note_()
+        elif sub_option2 == 2:
+            delete_note_()
+        elif sub_option2 == 3:
+            display_note_()
 
 if __name__ == "__main__":
     main()
