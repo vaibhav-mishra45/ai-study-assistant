@@ -4,9 +4,11 @@ from rich.table import Table
 from rich import print
 from rich.panel import Panel
 import sys
+from aiManager import choose_ai_feature
 from studyManager import add_subject, delete_subject, display_subjects, display_topics , rename_subject
 from studyManager import add_topic, del_topic, rename_t
 from studyManager import add_edit_note_, delete_note_, display_note_
+from aiManager import choose_option
 
 console = Console()
 def main():
@@ -15,9 +17,8 @@ def main():
         option = choose_option(5)
         if option == 1:
             study_management()
-            
         elif option == 2:
-            print("[bold green]You selected AI Features.[/bold green]")
+            choose_ai_feature()
         elif option == 3:
             print("[bold green]You selected Progress Tracking.[/bold green]")   
         elif option == 4:
@@ -29,88 +30,54 @@ def main():
             sys.exit()
    
 def main_menu():
-    print((Panel(Align.center("AI Study Assistant"), subtitle="Your Personal Learning Companion", style="bold green")))
-
-    table = Table(title="Main Menu")
-
-    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Description", style="magenta")
-
-    table.add_row("1", "Study Management")
-    table.add_row("2", "AI Features")
-    table.add_row("3", "Progress Tracking")
-    table.add_row("4", "Reports")
-    table.add_row("5", "Search")
-    table.add_row("0", "Exit")
-
-    table = Align.center(table)
-    console.print(table)
-
-
-def choose_option(n):
-    while True:
-        try:
-            option = int(input(f"Enter your choice (0-{n}): "))
-            if option in range(n + 1):
-                return option
-            else:
-                print(f"[red]Invalid choice. Please enter a number between 0 and {n}.[/red]")
-        except ValueError:
-            print(f"[red]Invalid input. Please enter a number between 0 and {n}.[/red]")
-
+    panel_title="AI Study Assistant"
+    panel_subtitle="Your Personal Learning Companion"
+    table_title="Main Menu"
+    rows=["Study Management", "AI Features", "Progress Tracking", "Reports", "Search",]
+    back_text="Exit"
+    generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
 def study_management_menu():
-    print((Panel(Align.center("Study Management"), subtitle="Welcome to Study Management Module", style="bold green")))
-    table = Table(title="Sub Menu")
-    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Description", style="magenta")
-
-    table.add_row("1", "Subject Management")
-    table.add_row("2", "Topic Management")
-    table.add_row("3", "Notes Management")
-    table.add_row("0", "Back")
-        
-    table = Align.center(table)
-    console.print(table)
+    panel_title="Study Management"
+    panel_subtitle="Welcome to Study Management Module"
+    table_title="Sub Menu"
+    rows=["Subject Management", "Topic Management", "Notes Management"]
+    back_text="Back"
+    generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
 def subject_management_menu():
-    print((Panel(Align.center("Subject Management"), subtitle="Welcome to Subject Management Module", style="bold green")))
-    table = Table(title="Sub Menu")
-    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Description", style="magenta")
-    table.add_row("1", "Add Subject")
-    table.add_row("2", "Delete Subject")
-    table.add_row("3", "Display Subjects")
-    table.add_row("4", "Rename Subject")
-    table.add_row("0", "Back")
-
-    table = Align.center(table)
-    console.print(table)
+    panel_title = "Subject Management"
+    panel_subtitle = "Welcome to Subject Management Module"
+    table_title = "Sub Menu"
+    rows = ["Add Subject", "Delete Subject", "Display Subjects", "Rename Subject"]
+    back_text = "Back"
+    generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
 def topic_management_menu():
-    print((Panel(Align.center("Topic Management"), subtitle="Welcome to Topic Management Module", style="bold green")))
-    table = Table(title="Sub Menu")
-    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Description", style="magenta")
-    table.add_row("1", "Add Topic")
-    table.add_row("2", "Delete Topic")
-    table.add_row("3", "Display Topics")
-    table.add_row("4", "Rename Topic")
-    table.add_row("0", "Back")
-
-    table = Align.center(table)
-    console.print(table)
+    panel_title = "Topic Management"
+    panel_subtitle = "Welcome to Topic Management Module"
+    table_title = "Sub Menu"
+    rows = ["Add/Edit Note", "Delete Note", "View Note"]
+    back_text = "Back"
+    generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
 def notes_management_menu():
-    print((Panel(Align.center("Notes Management"), subtitle="Welcome to Notes Management Module", style="bold green")))
-    table = Table(title="Sub Menu")
+    panel_title = "Notes Management"
+    panel_subtitle = "Welcome to Notes Management Module"
+    table_title = "Sub Menu"
+    rows = ["Add/Edit Note", "Delete Note", "View Note"]
+    back_text = "Back"
+    generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
+
+
+def generate_menu(panel_title, panel_subtitle, table_title, rows, back_text):
+    print((Panel(Align.center(panel_title), subtitle=panel_subtitle, style="bold green")))
+    table = Table(title=table_title)
     table.add_column("Option", justify="right", style="cyan", no_wrap=True)
     table.add_column("Description", style="magenta")
-    table.add_row("1", "Add/Edit Note")
-    table.add_row("2", "Delete Note")
-    table.add_row("3", "View Note")
-    table.add_row("0", "Back")
-
+    for i, row in enumerate(rows, start=1):
+        table.add_row(str(i), row)
+    table.add_row("0", back_text)
     table = Align.center(table)
     console.print(table)
 
