@@ -1,36 +1,18 @@
-from rich.align import Align
-from rich.table import Table
 from rich.panel import Panel
 from rich.console import Console
 from geminiService import generate_response
 from rich import print
+from utils import generate_menu, choose_option
 
 console = Console()
 
-def choose_option(n):
-    while True:
-        try:
-            option = int(input(f"Enter your choice (0-{n}): "))
-            if option in range(n + 1):
-                return option
-            else:
-                print(f"[red]Invalid choice. Please enter a number between 0 and {n}.[/red]")
-        except ValueError:
-            print(f"[red]Invalid input. Please enter a number between 0 and {n}.[/red]")
-
 def ai_features():
-    print((Panel(Align.center("AI Features"), subtitle="Welcome to AI Mode", style="bold green")))
-    table = Table(title="AI Features Menu")
-    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Description", style="magenta")
-    table.add_row("1", "Doubt Resolution")
-    table.add_row("2", "Quiz Generation")
-    table.add_row("3", "Note Summarization")
-    table.add_row("4", "Study Plan")
-    table.add_row("0", "Back")
-
-    table = Align.center(table)
-    console.print(table)
+    panel_title="AI Features"
+    panel_subtitle="Welcome to AI Mode"
+    table_title="AI Features Menu"
+    rows=["Doubt Resolution", "Quiz Generation", "Note Summarization", "Study Plan"]
+    back_text="Back"
+    generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
 def clean_response(text):
     text = text.replace("**", "")

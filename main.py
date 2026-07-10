@@ -1,14 +1,11 @@
 from rich.console import Console
-from rich.align import Align
-from rich.table import Table
-from rich import print
-from rich.panel import Panel
 import sys
 from aiManager import choose_ai_feature
 from studyManager import add_subject, delete_subject, display_subjects, display_topics , rename_subject
 from studyManager import add_topic, del_topic, rename_t
 from studyManager import add_edit_note_, delete_note_, display_note_
-from aiManager import choose_option
+from utils import choose_option
+from utils import generate_menu
 
 console = Console()
 def main():
@@ -33,7 +30,7 @@ def main_menu():
     panel_title="AI Study Assistant"
     panel_subtitle="Your Personal Learning Companion"
     table_title="Main Menu"
-    rows=["Study Management", "AI Features", "Progress Tracking", "Reports", "Search",]
+    rows=["Study Management", "AI Features", "Progress Tracking", "Reports", "Search"]
     back_text="Exit"
     generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
@@ -70,16 +67,7 @@ def notes_management_menu():
     generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
 
-def generate_menu(panel_title, panel_subtitle, table_title, rows, back_text):
-    print((Panel(Align.center(panel_title), subtitle=panel_subtitle, style="bold green")))
-    table = Table(title=table_title)
-    table.add_column("Option", justify="right", style="cyan", no_wrap=True)
-    table.add_column("Description", style="magenta")
-    for i, row in enumerate(rows, start=1):
-        table.add_row(str(i), row)
-    table.add_row("0", back_text)
-    table = Align.center(table)
-    console.print(table)
+
 
 def subject_management():
     subject_management_menu()
