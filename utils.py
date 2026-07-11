@@ -3,6 +3,7 @@ from rich.table import Table
 from rich.align import Align
 from rich.console import Console
 from rich import print
+import json
 
 console = Console()
 
@@ -27,3 +28,13 @@ def choose_option(n):
                 print(f"[red]Invalid choice. Please enter a number between 0 and {n}.[/red]")
         except ValueError:
             print(f"[red]Invalid input. Please enter a number between 0 and {n}.[/red]")
+
+def load_data(file_path):
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+        return data
+
+
+def write_data(file_path, data):
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=4)

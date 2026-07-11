@@ -1,19 +1,12 @@
 import json
 from rich import print
 from rich.table import Table
+from utils import load_data, write_data
 
 SUBJECT_FILE = 'data/subjects.json'
 
 
-def load_data(file_path=SUBJECT_FILE):
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-        return data
 
-
-def write_data(file_path, data):
-    with open(file_path, 'w') as f:
-        json.dump(data, f, indent=4)
 
 
 def find_subject(data, name):
