@@ -23,15 +23,15 @@ def topic_management_menu():
     panel_title = "Topic Management"
     panel_subtitle = "Welcome to Topic Management Module"
     table_title = "Sub Menu"
-    rows = ["Add/Edit Note", "Delete Note", "View Note"]
     back_text = "Back"
+    rows = ["Add Topic","Delete Topic","Display Topics","Rename Topic"]
     generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
 def notes_management_menu():
     panel_title = "Notes Management"
     panel_subtitle = "Welcome to Notes Management Module"
     table_title = "Sub Menu"
-    rows = ["Add Topic","Delete Topic","Display Topics","Rename Topic"]
+    rows = ["Add/Edit Note", "Delete Note", "View Note"]
     back_text = "Back"
     generate_menu(panel_title, panel_subtitle, table_title, rows, back_text)
 
@@ -131,7 +131,16 @@ def display_topics():
 def add_edit_note_():
     subject_name = input("Enter the subject name to add/edit a note for: ").capitalize().strip()
     topic_name = input("Enter the topic name: ").capitalize().strip()
-    note_content = input("Enter the note content: ").strip()
+    print("Enter your note (type END on a new line to finish):")
+    lines = []
+
+    while True:
+        line = input()
+        if line.strip().upper() == "END":
+            break
+        lines.append(line)
+
+    note_content = "\n".join(lines)
     add_edit_note(subject_name, topic_name, note_content)
 
 def delete_note_():

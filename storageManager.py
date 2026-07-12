@@ -5,10 +5,6 @@ from utils import load_data, write_data
 
 SUBJECT_FILE = 'data/subjects.json'
 
-
-
-
-
 def find_subject(data, name):
     for subject in data.get('subjects', []):
         if subject.get('name').lower() == name.lower():
