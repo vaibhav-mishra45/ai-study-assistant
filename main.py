@@ -2,6 +2,7 @@ import sys
 from aiManager import choose_ai_feature
 from studyManager import study_management
 from progressManager import progress_tracking
+from reports import reports
 from utils import choose_option, generate_menu
 from rich import print
 
@@ -16,7 +17,7 @@ def main():
         elif option == 3:
             progress_tracking()
         elif option == 4:
-            print("[bold green]You selected Reports.[/bold green]")
+            reports()
         elif option == 5:
             print("[bold green]You selected Search.[/bold green]")
         elif option == 0:
