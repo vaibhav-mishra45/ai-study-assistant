@@ -137,7 +137,7 @@ Most Quizzed Topic  : {quiz_stats["most_topic"] if quiz_stats else "N/A"}
 Keep up the good work!
 """
 
-    print(Panel(summary, title="Overall Summary", border_style="green"))
+    print(Panel.fit(summary, title="Overall Summary", border_style="green"))
 
 def reports():
     progress_tracking_menu()

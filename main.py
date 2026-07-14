@@ -3,6 +3,7 @@ from aiManager import choose_ai_feature
 from studyManager import study_management
 from progressManager import progress_tracking
 from reports import reports
+from search import search
 from utils import choose_option, generate_menu
 from rich import print
 
@@ -19,7 +20,7 @@ def main():
         elif option == 4:
             reports()
         elif option == 5:
-            print("[bold green]You selected Search.[/bold green]")
+            search()
         elif option == 0:
             print("[bold red]Exiting the program. Goodbye![/bold red]")
             sys.exit()
