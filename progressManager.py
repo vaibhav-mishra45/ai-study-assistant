@@ -44,7 +44,7 @@ def start_study_session():
     subject_name, topic_name = info
     start_time = datetime.now()
     print("[green]Study session started.[/green]")
-    while input("[yellow]Press Enter when you finish studying.[/yellow]") != "":
+    while input("Press Enter when you finish studying.") != "":
         print("[red]Please press only Enter.[/red]")
     end_time = datetime.now()
     duration = end_time - start_time
