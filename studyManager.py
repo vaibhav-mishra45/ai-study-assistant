@@ -3,6 +3,8 @@ from storageManager import save_topic, print_topics, delete_topic, rename_topic
 from storageManager import add_edit_note, delete_note, display_note
 from utils import generate_menu, choose_option
 
+SUBJECT_FILE = 'data/subjects.json'
+
 def study_management_menu():
     panel_title="Study Management"
     panel_subtitle="Welcome to Study Management Module"
@@ -100,7 +102,7 @@ def delete_subject():
     del_subject(name)
 
 def display_subjects():
-    data = load_data()
+    data = load_data(SUBJECT_FILE)
     print_subject(data)
 
 def rename_subject():

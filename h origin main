@@ -1,0 +1,17 @@
+* [33m79e310f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/development[m[33m, [m[1;32mdevelopment[m[33m)[m Add project documentation
+* [33md97fc7f[m Implement search module
+* [33mc4095e5[m Complete reports and analytics module
+* [33ma885e8b[m Implement progress tracking module
+* [33m04594b4[m Complete AI features implementation
+* [33m8479995[m Add quiz history storage
+* [33m22a0d53[m Add AI-powered quiz generation, scoring and review
+* [33m13bab9d[m Create utils module for shared helper functions
+* [33me32343c[m Refactor menu generation to reduce duplicate code
+* [33m9d66f84[m Refactor storage manager to reduce duplicate code
+* [33m404bf71[m Implemented Notes Management module (FR-16 to FR-22)
+* [33m5b2b96e[m Complete Topic Management module (FR-08 to FR-15)
+* [33md398a5d[m Implemented subject management module (FR-01 to FR-02)
+* [33mb9fb84b[m Implement main menu interface with Rich
+* [33m9e5a68e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Initial Setup
+* [33m64745ab[m Add .gitignore
+* [33m58d54e5[m Initial commit
