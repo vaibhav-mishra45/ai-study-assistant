@@ -1,11 +1,12 @@
-from utils import generate_menu, choose_option, load_data
+from utils import generate_menu, choose_option
+from storageManager import (
+    get_study_report_data,
+    get_quiz_report_data
+)
 from rich.table import Table
 from rich.panel import Panel
 from rich import print
 
-
-STUDY_HISTORY_FILE = 'data/study_history.json'
-QUIZ_FILE = 'data/quiz_history.json'
 
 def progress_tracking_menu():
     panel_title = "Reports"
@@ -16,8 +17,7 @@ def progress_tracking_menu():
     generate_menu(panel_title, panel_subtitle, table_tile, rows, back_text)
 
 def study_statistics():
-    data = load_data(STUDY_HISTORY_FILE)
-    sessions = data.get("sessions", [])
+    sessions = get_study_report_data()
 
     if not sessions:
         return None
@@ -31,8 +31,8 @@ def study_statistics():
     for session in sessions:
         study_time += session["duration_minutes"]
 
-        subject = session["subject"]
-        topic = session["topic"]
+        subject = session["subject_name"]
+        topic = session["topic_name"]
 
         subject_count[subject] = subject_count.get(subject, 0) + 1
         topic_count[topic] = topic_count.get(topic, 0) + 1
@@ -40,14 +40,22 @@ def study_statistics():
     return {
         "study_sessions": study_sessions,
         "study_time": study_time,
-        "avg_study_duration": round(study_time / study_sessions, 2),
-        "most_subject": max(subject_count, key=subject_count.get),
-        "most_topic": max(topic_count, key=topic_count.get)
+        "avg_study_duration": round(
+            study_time / study_sessions,
+            2
+        ),
+        "most_subject": max(
+            subject_count,
+            key=subject_count.get
+        ),
+        "most_topic": max(
+            topic_count,
+            key=topic_count.get
+        )
     }
 
 def quiz_statistics():
-    data = load_data(QUIZ_FILE)
-    quizzes = data.get("quizzes", [])
+    quizzes = get_quiz_report_data()
 
     if not quizzes:
         return None
@@ -59,19 +67,32 @@ def quiz_statistics():
     topic_count = {}
 
     for quiz in quizzes:
-        accuracy_total += quiz["accuracy"]
+        accuracy_total += float(quiz["accuracy"])
         score_total += quiz["score"]
 
-        topic = quiz["topic"]
+        topic = quiz["topic_name"]
         topic_count[topic] = topic_count.get(topic, 0) + 1
 
     return {
         "total_quizzes": total_quizzes,
-        "average_accuracy": round(accuracy_total / total_quizzes, 2),
-        "average_score": round(score_total / total_quizzes, 2),
-        "highest_score": max(quiz["score"] for quiz in quizzes),
-        "lowest_score": min(quiz["score"] for quiz in quizzes),
-        "most_topic": max(topic_count, key=topic_count.get)
+        "average_accuracy": round(
+            accuracy_total / total_quizzes,
+            2
+        ),
+        "average_score": round(
+            score_total / total_quizzes,
+            2
+        ),
+        "highest_score": max(
+            quiz["score"] for quiz in quizzes
+        ),
+        "lowest_score": min(
+            quiz["score"] for quiz in quizzes
+        ),
+        "most_topic": max(
+            topic_count,
+            key=topic_count.get
+        )
     }
 
 def study_report():

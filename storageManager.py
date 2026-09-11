@@ -1,186 +1,299 @@
 import json
+from database import execute_query, fetch_all
 from rich import print
 from rich.table import Table
-from utils import load_data, write_data
 
-SUBJECT_FILE = 'data/subjects.json'
+def get_subject_by_name(name):
+    query = """
+        SELECT id, name
+        FROM subjects
+        WHERE LOWER(name) = LOWER(%s)
+    """
 
-def find_subject(data, name):
-    for subject in data.get('subjects', []):
-        if subject.get('name').lower() == name.lower():
-            return subject
-    return None
+    subjects = fetch_all(query, (name,))
+    return subjects[0] if subjects else None
 
-
-def find_topic(subject, name):
-    for topic in subject.get('topics', []):
-        if topic.get('name').lower() == name.lower():
-            return topic
-    return None
-
-
-def print_subject(data):
-    table = Table(title="Subjects List", show_header=False)
-
-    subjects = sorted(data.get('subjects', []), key=lambda s: s.get('name', '').lower())
-    if not subjects:
-        print("[red]No subjects found![/red]")
-        return
-    for subject in subjects:
-        table.add_row(subject['name'])
-    print(table)
+def get_subjects():
+    query = """
+        SELECT id, name
+        FROM subjects
+        ORDER BY id
+    """
+    return fetch_all(query)
 
 
 def save_subject(name):
-    data = load_data(SUBJECT_FILE)
-    if find_subject(data, name):
-        print("[red]Subject already exist![/red]")
-        return
-    new_subject = {"name": name, "topics": []}
-    data['subjects'].append(new_subject)
-    write_data(SUBJECT_FILE, data)
+    query = """
+        INSERT INTO subjects (name)
+        VALUES (%s)
+    """
+    execute_query(query, (name,))
 
 
-def del_subject(name):
-    data = load_data(SUBJECT_FILE)
-    if not find_subject(data, name):
-        print(f"[red]Subject '{name}' not found![/red]")
-        return
-    data['subjects'] = [subject for subject in data.get('subjects', []) if subject.get('name').lower() != name.lower()]
-    write_data(SUBJECT_FILE, data)
+def delete_subject(name):
+    query = """
+        DELETE FROM subjects
+        WHERE name = %s
+    """
+    execute_query(query, (name,))
 
 
 def rename(old_name, new_name):
-    data = load_data(SUBJECT_FILE)
-    subjects = data.get('subjects', [])
-    # check old exists
-    subject = find_subject(data, old_name)
+    subject = fetch_all(
+        """
+        SELECT id, name
+        FROM subjects
+        WHERE LOWER(name) = LOWER(%s)
+        """,
+        (old_name,)
+    )
+
     if not subject:
-        print(f"[red]Subject '{old_name}' not found![/red]")
-        return
-    # check new doesn't already exist
-    if any(s.get('name').lower() == new_name.lower() for s in subjects):
-        print(f"[red]Subject '{new_name}' already exists![/red]")
-        return
-    # perform rename
-    subject['name'] = new_name
-    write_data(SUBJECT_FILE, data)
-    print(f"[green]Renamed '{old_name}' to '{new_name}'[/green]")
+        return False
+
+    existing = fetch_all(
+        """
+        SELECT id
+        FROM subjects
+        WHERE LOWER(name) = LOWER(%s)
+        """,
+        (new_name,)
+    )
+
+    if existing:
+        return False
+
+    execute_query(
+        """
+        UPDATE subjects
+        SET name = %s
+        WHERE id = %s
+        """,
+        (new_name, subject[0]["id"])
+    )
+
+    return True
+
+def get_topic_by_name(subject_id, name):
+    query = """
+        SELECT id, subject_id, name
+        FROM topics
+        WHERE subject_id = %s
+          AND LOWER(name) = LOWER(%s)
+    """
+
+    topics = fetch_all(query, (subject_id, name))
+    return topics[0] if topics else None
+
+def get_topics(subject_id):
+    query = """
+        SELECT id, name
+        FROM topics
+        WHERE subject_id = %s
+        ORDER BY id
+    """
+
+    return fetch_all(query, (subject_id,))
 
 
-def print_topics(subject_name):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
-    if not subject:
-        print(f"[red]Subject '{subject_name}' not found![/red]")
-        return
-    topics = subject.get('topics', [])
-    if not topics:
-        print(f"[red]No topics found under subject '{subject_name}'[/red]")
-        return
-    table = Table(title=f"Topics under '{subject_name}'", show_header=False)
-    for topic in topics:
-        table.add_row(topic['name'])
-    print(table)
-    return
+def save_topic(subject_id, name):
+    query = """
+        INSERT INTO topics (subject_id, name)
+        VALUES (%s, %s)
+    """
+
+    execute_query(query, (subject_id, name))
 
 
-def save_topic(subject_name, topic_name):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
-    if not subject:
-        print(f"[red]Subject '{subject_name}' not found![/red]")
-        return
-    if find_topic(subject, topic_name):
-        print(f"[red]Topic '{topic_name}' already exists under subject '{subject_name}'![/red]")
-        return
-    new_topic = {"name": topic_name, "note": ""}
-    subject['topics'].append(new_topic)
-    write_data(SUBJECT_FILE, data)
-    print(f"[green]Added topic '{topic_name}' under subject '{subject_name}'[/green]")
-    return
+def delete_topic(topic_id):
+    query = """
+        DELETE FROM topics
+        WHERE id = %s
+    """
+
+    execute_query(query, (topic_id,))
 
 
-def delete_topic(subject_name, topic_name):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
-    if not subject:
-        print(f"[red]Subject '{subject_name}' not found![/red]")
-        return
-    if not find_topic(subject, topic_name):
-        print(f"[red]Topic '{topic_name}' not found under subject '{subject_name}'![/red]")
-        return
-    subject['topics'] = [t for t in subject['topics'] if t.get('name').lower() != topic_name.lower()]
-    write_data(SUBJECT_FILE, data)
-    print(f"[green]Deleted topic '{topic_name}' from subject '{subject_name}'[/green]")
-    return
+def rename_topic(subject_id, old_topic_name, new_topic_name):
+    topic = fetch_all(
+        """
+        SELECT id, name
+        FROM topics
+        WHERE subject_id = %s
+          AND LOWER(name) = LOWER(%s)
+        """,
+        (subject_id, old_topic_name)
+    )
+
+    if not topic:
+        return False
+
+    existing = fetch_all(
+        """
+        SELECT id
+        FROM topics
+        WHERE subject_id = %s
+          AND LOWER(name) = LOWER(%s)
+        """,
+        (subject_id, new_topic_name)
+    )
+
+    if existing:
+        return False
+
+    execute_query(
+        """
+        UPDATE topics
+        SET name = %s
+        WHERE id = %s
+        """,
+        (new_topic_name, topic[0]["id"])
+    )
+
+    return True
 
 
-def rename_topic(subject_name, old_topic_name, new_topic_name):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
-    if not subject:
-        print(f"[red]Subject '{subject_name}' not found![/red]")
-        return
-    old_topic = find_topic(subject, old_topic_name)
-    if not old_topic:
-        print(f"[red]Topic '{old_topic_name}' not found under subject '{subject_name}'![/red]")
-        return
-    if find_topic(subject, new_topic_name):
-        print(f"[red]Topic '{new_topic_name}' already exists under subject '{subject_name}'![/red]")
-        return
-    old_topic['name'] = new_topic_name
-    write_data(SUBJECT_FILE, data)
-    print(f"[green]Renamed topic '{old_topic_name}' to '{new_topic_name}' under subject '{subject_name}'[/green]")
-    return
+def save_note(topic_id, content):
+    query = """
+        INSERT INTO notes (topic_id, content)
+        VALUES (%s, %s)
+    """
+
+    execute_query(query, (topic_id, content))
 
 
-def add_edit_note(subject_name, topic_name, note_content):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
-    if not subject:
-        print(f"[red]Subject '{subject_name}' not found![/red]")
-        return
-    topic = find_topic(subject, topic_name)
-    if topic:
-        topic['note'] = note_content
-        write_data(SUBJECT_FILE, data)
-        print(f"[green]Added/Updated note for topic '{topic_name}' under subject '{subject_name}'[/green]")
-        return
-    print(f"[red]Topic '{topic_name}' not found under subject '{subject_name}'![/red]")
-    return
+def update_note(topic_id, content):
+    query = """
+        UPDATE notes
+        SET content = %s
+        WHERE topic_id = %s
+    """
+
+    execute_query(query, (content, topic_id))
+
+def delete_note(topic_id):
+    query = """
+        DELETE FROM notes
+        WHERE topic_id = %s
+    """
+
+    execute_query(query, (topic_id,))
 
 
-def delete_note(subject_name, topic_name):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
-    if not subject:
-        print(f"[red]Subject '{subject_name}' not found![/red]")
-        return
-    topic = find_topic(subject, topic_name)
-    if topic:
-        topic['note'] = ""
-        write_data(SUBJECT_FILE, data)
-        print(f"[green]Deleted note for topic '{topic_name}' under subject '{subject_name}'[/green]")
-        return
-    print(f"[red]Topic '{topic_name}' not found under subject '{subject_name}'![/red]")
-    return
+def get_note(topic_id):
+    query = """
+        SELECT id, topic_id, content
+        FROM notes
+        WHERE topic_id = %s
+    """
+
+    notes = fetch_all(query, (topic_id,))
+
+    return notes[0] if notes else None
+
+def save_study_session(topic_id, start_time, end_time, duration_minutes):
+    query = """
+        INSERT INTO study_sessions
+        (topic_id, start_time, end_time, duration_minutes)
+        VALUES (%s, %s, %s, %s)
+    """
+    execute_query(
+        query,
+        (topic_id, start_time, end_time, duration_minutes)
+    )
+
+def save_quiz(
+    topic_id,
+    score,
+    total_questions,
+    accuracy,
+    time_taken_seconds,
+    completed_at
+):
+    query = """
+        INSERT INTO quizzes
+        (
+            topic_id,
+            score,
+            total_questions,
+            accuracy,
+            time_taken_seconds,
+            completed_at
+        )
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+
+    execute_query(
+        query,
+        (
+            topic_id,
+            score,
+            total_questions,
+            accuracy,
+            time_taken_seconds,
+            completed_at
+        )
+    )
+
+def search_topics(topic_name):
+    query = """
+        SELECT
+            topics.id,
+            topics.name AS topic_name,
+            subjects.name AS subject_name,
+            CASE
+                WHEN notes.id IS NOT NULL THEN 'Yes'
+                ELSE 'No'
+            END AS notes_available
+        FROM topics
+        JOIN subjects
+            ON topics.subject_id = subjects.id
+        LEFT JOIN notes
+            ON topics.id = notes.topic_id
+        WHERE LOWER(topics.name) = LOWER(%s)
+    """
+    return fetch_all(query, (topic_name,))
+
+def search_notes(keyword):
+    query = """
+        SELECT
+            subjects.name AS subject_name,
+            topics.name AS topic_name
+        FROM notes
+        JOIN topics
+            ON notes.topic_id = topics.id
+        JOIN subjects
+            ON topics.subject_id = subjects.id
+        WHERE LOWER(notes.content) LIKE LOWER(%s)
+    """
+    return fetch_all(query, (f"%{keyword}%",))
 
 
-def display_note(subject_name, topic_name):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
-    if not subject:
-        print(f"[red]Subject '{subject_name}' not found![/red]")
-        return
-    topic = find_topic(subject, topic_name)
-    if topic:
-        note_content = topic.get('note', "")
-        if note_content:
-            print(f"[bold green]Note for topic '{topic_name}' under subject '{subject_name}':[/bold green]\n{note_content}")
-        else:
-            print(f"[red]No note found for topic '{topic_name}' under subject '{subject_name}'[/red]")
-        return
-    print(f"[red]Topic '{topic_name}' not found under subject '{subject_name}'![/red]")
+def get_study_report_data():
+    query = """
+        SELECT
+            study_sessions.duration_minutes,
+            subjects.name AS subject_name,
+            topics.name AS topic_name
+        FROM study_sessions
+        JOIN topics
+            ON study_sessions.topic_id = topics.id
+        JOIN subjects
+            ON topics.subject_id = subjects.id
+        ORDER BY study_sessions.id
+    """
+    return fetch_all(query)
 
-
+def get_quiz_report_data():
+    query = """
+        SELECT
+            quizzes.score,
+            quizzes.total_questions,
+            quizzes.accuracy,
+            topics.name AS topic_name
+        FROM quizzes
+        JOIN topics
+            ON quizzes.topic_id = topics.id
+        ORDER BY quizzes.id
+    """
+    return fetch_all(query)

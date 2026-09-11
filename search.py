@@ -1,9 +1,12 @@
-from utils import generate_menu, choose_option, load_data
-from storageManager import find_subject
+from utils import generate_menu, choose_option
+from storageManager import (
+    get_subject_by_name,
+    get_topics,
+    search_topics,
+    search_notes
+)
 from rich import print
 from rich.panel import Panel
-
-SUBJECT_FILE = 'data/subjects.json'
 
 def search_menu():
     panel_title = "Search"
@@ -14,73 +17,86 @@ def search_menu():
     generate_menu(panel_title, panel_subtitle, table_tile, rows, back_text)
 
 def search_subject(subject_name):
-    data = load_data(SUBJECT_FILE)
-    subject = find_subject(data, subject_name)
+    subject = get_subject_by_name(subject_name)
+
     if not subject:
         print("[red]Subject not found.[/red]")
         return
-    topics = "\n".join(f"• {topic['name']}" for topic in subject["topics"])
-    subject_details = f'''Subject Found
+
+    topics = get_topics(subject["id"])
+
+    topic_names = "\n".join(
+        f"• {topic['name']}"
+        for topic in topics
+    )
+
+    subject_details = f"""Subject Found
 
 Subject : {subject['name']}
 
 TOPICS
-{topics}
-    '''
-
-    print(Panel.fit(subject_details, title="Subject Details", border_style="green"))
-
-def search_topic(topic_name):
-    data = load_data(SUBJECT_FILE)
-    subjects = data.get("subjects", [])
-
-    for subject in subjects:
-        topics = subject.get("topics", [])
-
-        for topic in topics:
-            if topic["name"].lower() == topic_name.lower():
-
-                note = "Yes" if topic["note"] else "No"
-
-                topic_details = f"""Topic Found
-
-Topic   : {topic["name"]}
-
-Subject : {subject["name"]}
-
-Notes Available : {note}
+{topic_names}
 """
 
-                print(Panel.fit(topic_details,
-                                title="Topic Details",
-                                border_style="green"))
-                return
+    print(
+        Panel.fit(
+            subject_details,
+            title="Subject Details",
+            border_style="green"
+        )
+    )
 
-    print(f"[red]Topic '{topic_name}' not found.[/red]")
-
-def search_note(keyword):
-    data = load_data(SUBJECT_FILE)
-    subjects = data.get("subjects", [])
-    matches = []
-    for subject in subjects:
-        topics = subject.get("topics", [])
-        for topic in topics:
-            note_text = topic.get('note', '') or ''
-            if keyword.lower() in note_text.lower():
-                matches.append(
-                    f"Subject : {subject['name']}\n"
-                    f"Topic   : {topic['name']}"
-                )
+def search_topic(topic_name):
+    matches = search_topics(topic_name)
 
     if not matches:
-        print(f"[red]No notes found containing '{keyword}'.[/red]")
+        print(f"[red]Topic '{topic_name}' not found.[/red]")
         return
 
-    found_details = f'''Search Results
-    
-{"\n\n".join(matches)}'''
+    match = matches[0]
 
-    print(Panel.fit(found_details, title="Note Search Results", border_style="green"))
+    topic_details = f"""Topic Found
+
+Topic   : {match["topic_name"]}
+
+Subject : {match["subject_name"]}
+
+Notes Available : {match["notes_available"]}
+"""
+
+    print(
+        Panel.fit(
+            topic_details,
+            title="Topic Details",
+            border_style="green"
+        )
+    )
+
+def search_note(keyword):
+    matches = search_notes(keyword)
+
+    if not matches:
+        print(
+            f"[red]No notes found containing '{keyword}'.[/red]"
+        )
+        return
+
+    found_details = f"""Search Results
+
+{"\n\n".join(
+    f"Subject : {match['subject_name']}\n"
+    f"Topic   : {match['topic_name']}"
+    for match in matches
+)}
+"""
+
+    print(
+        Panel.fit(
+            found_details,
+            title="Note Search Results",
+            border_style="green"
+        )
+    )
 
 def search():
     search_menu()
