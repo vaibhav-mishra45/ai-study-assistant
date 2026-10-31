@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}AI Doubt Resolution — AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+        <div class="d-inline-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-ai"><i class="bi bi-patch-question-fill me-1"></i>Gemini 2.5 Solver</span>
+        </div>
+        <h1>AI Doubt Resolution</h1>
+        <p>Ask conceptual, algorithmic, or theoretical questions and get structured, step-by-step academic guidance.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-chat-left-dots text-primary fs-5"></i>
+                    <span>Formulate Your Question</span>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <!-- Example Idea Chips -->
+                <div class="mb-3">
+                    <span class="text-muted small fw-semibold me-2">Try quick prompt:</span>
+                    <a href="javascript:void(0)" class="ai-chip-suggestion" onclick="fillPrompt('Explain the difference between Dijkstra and Bellman-Ford algorithm with time complexity.')">Dijkstra vs Bellman-Ford</a>
+                    <a href="javascript:void(0)" class="ai-chip-suggestion" onclick="fillPrompt('Explain the 4 ACID properties in database transactions with real-world examples.')">ACID Properties</a>
+                    <a href="javascript:void(0)" class="ai-chip-suggestion" onclick="fillPrompt('How does virtual memory paging work in Operating Systems?')">Virtual Memory Paging</a>
+                    <a href="javascript:void(0)" class="ai-chip-suggestion" onclick="fillPrompt('Explain Big-O vs Big-Omega vs Big-Theta with graphs.')">Asymptotic Notations</a>
+                </div>
+
+                <form method="post" data-ai-form>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="question" class="form-label">Your Doubt or Concept Question</label>
+                        <textarea class="form-control" id="question" name="question" rows="4" placeholder="e.g. How does Quicksort partitioning work, and why is its worst-case O(n^2)?" required minlength="5" style="line-height: 1.6;">{{ question }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small"><i class="bi bi-shield-check text-success me-1"></i>Academic mode active</span>
+                        <button type="submit" class="btn btn-ai px-4">
+                            <i class="bi bi-stars me-1"></i>Resolve Doubt
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if answer %}
+        <div class="card ai-response-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="ai-header-badge">
+                        <i class="bi bi-robot me-1"></i>Gemini Explanation
+                    </span>
+                    <span class="text-muted small">Generated Solution</span>
+                </div>
+                <button type="button" class="copy-btn-chip" onclick="copyToClipboard(document.getElementById('aiAnswerText').innerText, 'AI explanation copied!')">
+                    <i class="bi bi-clipboard me-1"></i>Copy Solution
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <div class="ai-formatted-box" id="aiAnswerText">{{ answer }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-lightbulb text-warning fs-5"></i>
+                <span class="fw-bold">Tips for Best Answers</span>
+            </div>
+            <div class="card-body small text-muted">
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check2-circle text-primary mt-1"></i>
+                        <span>State the exact theorem, algorithm, or programming language involved.</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check2-circle text-primary mt-1"></i>
+                        <span>Ask for step-by-step mathematical proofs or code walk-throughs if needed.</span>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check2-circle text-primary mt-1"></i>
+                        <span>Include any constraints or edge cases you are struggling to comprehend.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card bg-light-subtle">
+            <div class="card-body text-center p-4">
+                <div class="stat-avatar purple mb-2 mx-auto">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Need a Quick Quiz?</h6>
+                <p class="text-muted small mb-3">Test your knowledge immediately after resolving your doubt.</p>
+                <a href="{% url 'ai_quiz' %}" class="btn btn-sm btn-outline-primary">Generate Quiz</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fillPrompt(text) {
+    const textarea = document.getElementById('question');
+    if (textarea) {
+        textarea.value = text;
+        textarea.focus();
+    }
+}
+</script>
+{% endblock %}
+

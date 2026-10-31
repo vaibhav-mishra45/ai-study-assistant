@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}AI Quiz Generator — AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+        <div class="d-inline-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-ai"><i class="bi bi-patch-question-fill me-1"></i>Adaptive Testing</span>
+        </div>
+        <h1>AI Quiz Generator</h1>
+        <p>Generate 5 curriculum-aligned multiple-choice questions to test your depth of understanding.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-gear-wide-connected text-primary fs-5"></i>
+                <span>Quiz Configuration</span>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" data-ai-form>
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="generate">
+
+                    <div class="mb-3">
+                        <label for="subject_id" class="form-label">Select Subject</label>
+                        <select class="form-select" id="subject_id" name="subject_id" required>
+                            <option value="">-- Choose Subject --</option>
+                            {% for s in subjects %}
+                            <option value="{{ s.id }}" {% if request.GET.subject_id == s.id|stringformat:"i" %}selected{% endif %}>{{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="topicSelect" class="form-label">Pick from Existing Topics</label>
+                        <select class="form-select" id="topicSelect" disabled>
+                            <option value="">-- Choose a subject first --</option>
+                        </select>
+                        <div class="form-text">Choose from your curriculum topics or specify a topic below.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="topic_input" class="form-label">Topic Name for Quiz</label>
+                        <input type="text" class="form-control" id="topic_input" name="topic_input" placeholder="e.g. Binary Search Trees" value="{{ request.GET.topic_input|default:'' }}" required>
+                        <div class="form-text">Must match an existing topic under the chosen subject.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center pt-2">
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-ai px-4">
+                            <i class="bi bi-play-circle-fill me-1"></i>Generate & Start Quiz
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card bg-light-subtle">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="stat-avatar rose mb-0">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="small">
+                    <strong>Cryptographic Score Signing:</strong> When completed, your quiz score and timestamp are cryptographically signed with ECDSA to guarantee academic integrity in your report history.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const subjectSelect = document.getElementById('subject_id');
+    const topicSelect = document.getElementById('topicSelect');
+    const topicInput = document.getElementById('topic_input');
+
+    function loadTopics(subjectId) {
+        if (!subjectId) {
+            topicSelect.innerHTML = '<option value="">-- Select a subject first --</option>';
+            topicSelect.disabled = true;
+            return;
+        }
+
+        fetch(`/ajax/topics/${subjectId}/`)
+            .then(response => response.json())
+            .then(topics => {
+                topicSelect.innerHTML = '<option value="">-- Choose a topic --</option>';
+                if (topics.length > 0) {
+                    topics.forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t.name;
+                        opt.textContent = t.name;
+                        if (topicInput.value && topicInput.value.toLowerCase() === t.name.toLowerCase()) {
+                            opt.selected = true;
+                        }
+                        topicSelect.appendChild(opt);
+                    });
+                    topicSelect.disabled = false;
+                } else {
+                    topicSelect.innerHTML = '<option value="">(No topics found for this subject)</option>';
+                    topicSelect.disabled = true;
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching topics:', err);
+            });
+    }
+
+    if (subjectSelect) {
+        subjectSelect.addEventListener('change', function () {
+            loadTopics(this.value);
+        });
+
+        if (subjectSelect.value) {
+            loadTopics(subjectSelect.value);
+        }
+    }
+
+    if (topicSelect) {
+        topicSelect.addEventListener('change', function () {
+            if (this.value) {
+                topicInput.value = this.value;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+

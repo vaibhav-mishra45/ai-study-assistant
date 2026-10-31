@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Curriculum Subjects — AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+        <div class="d-inline-flex align-items-center gap-2 mb-1">
+            <span class="badge-pill-soft primary"><i class="bi bi-book-half me-1"></i>Curriculum</span>
+        </div>
+        <h1>Study Subjects</h1>
+        <p>Organize your courses, modules, and track syllabus coverage.</p>
+    </div>
+    <a href="{% url 'subject_add' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Add Subject
+    </a>
+</div>
+
+{% if subjects %}
+<div class="row g-4">
+    {% for subject in subjects %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 subject-card">
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="stat-avatar indigo mb-0">
+                            <i class="bi bi-mortarboard-fill"></i>
+                        </div>
+                        <span class="badge-pill-soft primary">
+                            {{ subject.topic_count }} Topic{{ subject.topic_count|pluralize }}
+                        </span>
+                    </div>
+                    <h4 class="card-title fw-bold mb-2 text-main">{{ subject.name }}</h4>
+                    <p class="text-muted small mb-4">Click to inspect topics, view detailed notes, or launch AI revisions.</p>
+                </div>
+                
+                <div class="d-flex align-items-center justify-content-between pt-3 border-top border-light-subtle">
+                    <a href="{% url 'topic_list' subject.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-list-nested me-1"></i>Explore Topics
+                    </a>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'subject_rename' subject.id %}" class="btn btn-sm btn-outline-secondary" title="Rename Subject">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'subject_delete' subject.id %}" class="btn btn-sm btn-outline-danger" title="Delete Subject">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state-modern">
+    <div class="empty-state-icon-box">
+        <i class="bi bi-journal-plus"></i>
+    </div>
+    <h5>No subjects created yet</h5>
+    <p>Create your first subject (e.g. "Data Structures", "Operating Systems", "Microeconomics") to start organizing topics and notes.</p>
+    <a href="{% url 'subject_add' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Create First Subject
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+

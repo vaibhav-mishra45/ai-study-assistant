@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}AI Study Plan Generator — AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+        <div class="d-inline-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-ai"><i class="bi bi-calendar2-range-fill me-1"></i>Adaptive Roadmap</span>
+        </div>
+        <h1>AI Study Plan Generator</h1>
+        <p>Generate week-by-week personalized study roadmaps tailored to your timeline and daily availability.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-sliders text-primary fs-5"></i>
+                <span>Study Schedule & Goals</span>
+            </div>
+            <div class="card-body p-4">
+                <!-- Example Goal Chips -->
+                <div class="mb-3">
+                    <span class="text-muted small fw-semibold me-2">Example targets:</span>
+                    <a href="javascript:void(0)" class="ai-chip-suggestion" onclick="fillGoal('Master Data Structures & Algorithms for technical interviews')">DSA Interviews</a>
+                    <a href="javascript:void(0)" class="ai-chip-suggestion" onclick="fillGoal('Prepare for Operating Systems & Computer Networks semester exams')">CS Core Finals</a>
+                    <a href="javascript:void(0)" class="ai-chip-suggestion" onclick="fillGoal('Learn Machine Learning foundations, Linear Algebra, and PyTorch')">ML & PyTorch</a>
+                </div>
+
+                <form method="post" data-ai-form>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="goal" class="form-label">Study Goal / Exam Target</label>
+                        <input type="text" class="form-control" id="goal" name="goal" placeholder="e.g. Master Data Structures & Algorithms for interviews" value="{{ goal }}" required>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <label for="duration" class="form-label">Duration (Weeks)</label>
+                            <input type="number" class="form-control" id="duration" name="duration" min="1" max="52" placeholder="e.g. 4" value="{{ duration|default:'4' }}" required>
+                        </div>
+                        <div class="col-6">
+                            <label for="study_hours" class="form-label">Daily Study (Hours)</label>
+                            <input type="number" class="form-control" id="study_hours" name="study_hours" min="1" max="16" placeholder="e.g. 3" value="{{ study_hours|default:'3' }}" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-ai w-100 py-2">
+                        <i class="bi bi-magic me-1"></i>Generate Study Roadmap
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        {% if plan %}
+        <div class="card ai-response-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="ai-header-badge">
+                        <i class="bi bi-calendar2-check-fill me-1"></i>Personalized Roadmap
+                    </span>
+                    <span class="badge-pill-soft primary">{{ duration }} Weeks &bull; {{ study_hours }}h/day</span>
+                </div>
+                <button type="button" class="copy-btn-chip" onclick="copyToClipboard(document.getElementById('planText').innerText, 'Study plan copied!')">
+                    <i class="bi bi-clipboard me-1"></i>Copy Plan
+                </button>
+            </div>
+            <div class="card-body p-4">
+                <div class="ai-formatted-box" id="planText">{{ plan }}</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state-modern card">
+            <div class="empty-state-icon-box">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+            <h5>No Roadmap Generated Yet</h5>
+            <p>Input your target topic, duration, and daily time commitment on the left to receive an AI-crafted milestone schedule.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fillGoal(text) {
+    const input = document.getElementById('goal');
+    if (input) {
+        input.value = text;
+        input.focus();
+    }
+}
+</script>
+{% endblock %}
+

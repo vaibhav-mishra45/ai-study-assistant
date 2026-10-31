@@ -15,6 +15,12 @@ __pycache__/
 # Generated Data Files
 data/*.json
 
+# Cryptographic Keys
+*.pem
+
 # OS Files
 .DS_Store
 Thumbs.db
+
+# SQLite Database
+*.sqlite3

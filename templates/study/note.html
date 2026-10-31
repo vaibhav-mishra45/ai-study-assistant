@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}{{ topic.name }} — Notes{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+        <nav aria-label="breadcrumb">
+            <div class="breadcrumb-custom">
+                <a href="{% url 'subject_list' %}"><i class="bi bi-book-half me-1"></i>Subjects</a>
+                <span class="mx-2 text-muted">&rsaquo;</span>
+                <a href="{% url 'topic_list' topic.subject.id %}">{{ topic.subject.name }}</a>
+                <span class="mx-2 text-muted">&rsaquo;</span>
+                <span class="active">{{ topic.name }}</span>
+            </div>
+        </nav>
+        <h1>Study Notes: {{ topic.name }}</h1>
+        <p>Curriculum topic study notes and instant AI knowledge synthesis.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'topic_list' topic.subject.id %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Topics
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-file-earmark-code text-primary fs-5"></i>
+                    <span>Markdown & Note Editor</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 text-muted small">
+                    <span id="wordCharCount">0 chars</span>
+                    {% if note %}
+                    <span>&bull; Last updated {{ note.updated_at|date:"M d, H:i" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <textarea class="form-control font-monospace" id="noteContentTextarea" name="content" rows="15" placeholder="Write or paste key definitions, algorithms, proofs, formulas, or lecture notes here..." required style="line-height: 1.6; font-size: 0.95rem; resize: vertical;">{{ note.content|default:'' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if note %}
+                            <a href="{% url 'note_delete' topic.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i>Delete Note
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="copyToClipboard(document.getElementById('noteContentTextarea').value, 'Note content copied!')">
+                                <i class="bi bi-clipboard me-1"></i>Copy
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check2-circle me-1"></i>{% if note %}Save Changes{% else %}Create Note{% endif %}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- AI Quick Actions Card -->
+        <div class="card mb-4" style="border: 1px solid rgba(168, 85, 247, 0.35); background: linear-gradient(180deg, rgba(168, 85, 247, 0.04) 0%, transparent 100%);">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-stars text-purple"></i>
+                <span class="fw-bold">AI Note Actions</span>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small mb-3">Leverage Gemini AI with this note's context to test and reinforce your mastery.</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'ai_summarize' %}?subject_id={{ topic.subject.id }}&topic_id={{ topic.id }}" class="btn btn-outline-primary text-start">
+                        <i class="bi bi-card-text text-primary me-2"></i>Summarize Note
+                    </a>
+                    <a href="{% url 'ai_quiz' %}?subject_id={{ topic.subject.id }}&topic_input={{ topic.name }}" class="btn btn-ai text-start">
+                        <i class="bi bi-lightning-charge me-2"></i>Generate Quiz on {{ topic.name }}
+                    </a>
+                    <a href="{% url 'ai_doubt' %}" class="btn btn-outline-secondary text-start">
+                        <i class="bi bi-chat-dots text-info me-2"></i>Ask Concept Doubt
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Topic Details Card -->
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="bi bi-info-circle text-muted"></i>
+                <span>Topic Summary</span>
+            </div>
+            <div class="card-body small">
+                <div class="d-flex justify-content-between py-2 border-bottom border-light-subtle">
+                    <span class="text-muted">Subject</span>
+                    <strong class="text-main">{{ topic.subject.name }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2 border-bottom border-light-subtle">
+                    <span class="text-muted">Topic</span>
+                    <strong class="text-main">{{ topic.name }}</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2">
+                    <span class="text-muted">Documentation</span>
+                    <span>
+                        {% if note %}
+                        <span class="badge-pill-soft success"><i class="bi bi-check-circle-fill"></i>Active Note</span>
+                        {% else %}
+                        <span class="badge-pill-soft text-muted bg-light"><i class="bi bi-dash-circle"></i>Empty</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('noteContentTextarea');
+    const counter = document.getElementById('wordCharCount');
+    function updateCounts() {
+        const text = textarea ? textarea.value : '';
+        const chars = text.length;
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        if (counter) {
+            counter.textContent = `${words} words · ${chars} chars`;
+        }
+    }
+    if (textarea) {
+        textarea.addEventListener('input', updateCounts);
+        updateCounts();
+    }
+});
+</script>
+{% endblock %}
+

@@ -11,6 +11,8 @@ from storageManager import (
     get_note,
     save_quiz
 )
+from cryptoManager import canonicalize_quiz, sign_data
+from database import fetch_one
 console = Console()
 QUIZ_SIZE = 5
 
@@ -230,13 +232,34 @@ def quiz_ans():
 def quiz_data(topic_id, score, accuracy):
     completed_at = datetime.now()
 
+    # Get the next auto_increment ID so we can include quiz_id in the signature
+    result = fetch_one(
+        "SELECT AUTO_INCREMENT FROM information_schema.TABLES "
+        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'quizzes'"
+    )
+    next_id = result["AUTO_INCREMENT"]
+
+    # Build canonical payload and sign before inserting
+    canonical_bytes = canonicalize_quiz(
+        quiz_id=next_id,
+        topic_id=topic_id,
+        score=score,
+        total_questions=QUIZ_SIZE,
+        accuracy=accuracy,
+        time_taken_seconds=None,
+        completed_at=completed_at
+    )
+
+    signature = sign_data(canonical_bytes)
+
     save_quiz(
         topic_id,
         score,
         QUIZ_SIZE,
         accuracy,
         None,
-        completed_at
+        completed_at,
+        signature
     )
 
 

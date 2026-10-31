@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Study Assistant — Smart curriculum manager, AI quiz generator, doubt resolver, note summarizer and study tracker.">
+    <title>{% block title %}AI Study Assistant{% endblock %}</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    
+    <!-- Custom Style System -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Background Ambient Glow Mesh -->
+    <div class="ambient-glow-wrapper" aria-hidden="true">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+    </div>
+
+    <!-- Glassmorphic Navbar -->
+    <nav class="navbar navbar-expand-lg app-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand brand-glow d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+                <span class="brand-icon-wrapper">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </span>
+                <span class="brand-text">Study<span class="brand-accent">AI</span></span>
+            </a>
+            
+            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-pills-custom">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                            <i class="bi bi-grid-1x2-fill me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'subject' in request.resolver_match.url_name or 'topic' in request.resolver_match.url_name or 'note' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'subject_list' %}">
+                            <i class="bi bi-book-half me-1"></i>Curriculum
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle ai-nav-badge {% if 'ai_' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-stars ai-sparkle me-1"></i>AI Suite
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-premium shadow-lg border-0">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'ai_doubt' %}">
+                                    <span class="dropdown-icon-box bg-primary-subtle text-primary">
+                                        <i class="bi bi-patch-question-fill"></i>
+                                    </span>
+                                    <div>
+                                        <div class="dropdown-title">Doubt Resolver</div>
+                                        <div class="dropdown-sub">Step-by-step academic solutions</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'ai_quiz' %}">
+                                    <span class="dropdown-icon-box bg-purple-subtle text-purple">
+                                        <i class="bi bi-lightning-charge-fill"></i>
+                                    </span>
+                                    <div>
+                                        <div class="dropdown-title">Quiz Generator</div>
+                                        <div class="dropdown-sub">Adaptive multiple-choice test</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'ai_summarize' %}">
+                                    <span class="dropdown-icon-box bg-success-subtle text-success">
+                                        <i class="bi bi-file-earmark-text-fill"></i>
+                                    </span>
+                                    <div>
+                                        <div class="dropdown-title">Note Summarizer</div>
+                                        <div class="dropdown-sub">Extract key takeaways & formulas</div>
+                                    </div>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'ai_study_plan' %}">
+                                    <span class="dropdown-icon-box bg-warning-subtle text-warning">
+                                        <i class="bi bi-calendar-range-fill"></i>
+                                    </span>
+                                    <div>
+                                        <div class="dropdown-title">Study Planner</div>
+                                        <div class="dropdown-sub">Personalized milestone schedule</div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'session_start' %}active{% endif %}" href="{% url 'session_start' %}">
+                            <i class="bi bi-stopwatch-fill me-1"></i>Timer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" href="{% url 'reports' %}">
+                            <i class="bi bi-graph-up-arrow me-1"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'quiz_integrity' %}active{% endif %}" href="{% url 'quiz_integrity' %}">
+                            <i class="bi bi-shield-lock-fill me-1"></i>Integrity
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Right search and theme toggle -->
+                <div class="d-flex align-items-center gap-2">
+                    <form class="d-flex search-box-wrapper" action="{% url 'search' %}" method="get">
+                        <div class="input-group search-input-group">
+                            <span class="input-group-text search-icon">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input class="form-control search-input" type="search" name="q" placeholder="Search topics, notes..." value="{{ request.GET.q|default:'' }}" aria-label="Search" id="globalSearchInput">
+                            <span class="input-group-text keyboard-hint d-none d-md-inline" title="Press / to search">/</span>
+                        </div>
+                    </form>
+
+                    <!-- Dark / Light Theme Toggle -->
+                    <button class="btn theme-toggle-btn" type="button" id="themeToggleBtn" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+                        <i class="bi bi-moon-stars-fill theme-icon-moon"></i>
+                        <i class="bi bi-sun-fill theme-icon-sun d-none"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash notifications -->
+    <div class="container mt-3">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-premium alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-success{% elif message.tags == 'error' or message.tags == 'danger' %}bi-exclamation-triangle-fill text-danger{% elif message.tags == 'warning' %}bi-exclamation-circle-fill text-warning{% else %}bi-info-circle-fill text-primary{% endif %} fs-5"></i>
+                <div class="flex-grow-1">{{ message }}</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main dynamic page content -->
+    <main class="container py-4 main-content-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="app-footer py-4 mt-auto">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2 text-muted small">
+                <span class="status-indicator"></span>
+                <span>StudyAI Engine Connected &bull; Powered by Gemini 2.5</span>
+            </div>
+            <div class="text-muted small">
+                <span>AI Study Assistant &copy; 2026 &bull; Secure Cryptographic Architecture</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AI Request Loading Overlay -->
+    <div class="ai-loading-overlay" id="aiLoadingOverlay" aria-hidden="true">
+        <div class="ai-loading-modal text-center">
+            <div class="ai-pulse-ring">
+                <i class="bi bi-stars ai-sparkle-spin"></i>
+            </div>
+            <h5 class="mt-3 fw-bold mb-1" id="loadingTitle">Consulting Gemini AI...</h5>
+            <p class="text-muted small mb-0" id="loadingSubtitle">Generating intelligent learning context</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080;">
+        <div id="appToast" class="toast align-items-center text-bg-dark border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill text-success" id="toastIcon"></i>
+                    <span id="toastMessage">Copied to clipboard!</span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Theme Persistence and Switching
+        (function() {
+            const savedTheme = localStorage.getItem('study_theme') || 
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                localStorage.setItem('study_theme', theme);
+                const moonIcon = document.querySelector('.theme-icon-moon');
+                const sunIcon = document.querySelector('.theme-icon-sun');
+                if (moonIcon && sunIcon) {
+                    if (theme === 'dark') {
+                        moonIcon.classList.add('d-none');
+                        sunIcon.classList.remove('d-none');
+                    } else {
+                        moonIcon.classList.remove('d-none');
+                        sunIcon.classList.add('d-none');
+                    }
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const toggleBtn = document.getElementById('themeToggleBtn');
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', () => {
+                        const current = document.documentElement.getAttribute('data-bs-theme');
+                        applyTheme(current === 'dark' ? 'light' : 'dark');
+                    });
+                }
+
+                // Global search shortcut '/'
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                        e.preventDefault();
+                        const searchInput = document.getElementById('globalSearchInput');
+                        if (searchInput) searchInput.focus();
+                    }
+                });
+
+                // Global AI loading overlay hook for AI forms
+                const aiForms = document.querySelectorAll('form[data-ai-form]');
+                const overlay = document.getElementById('aiLoadingOverlay');
+                aiForms.forEach(form => {
+                    form.addEventListener('submit', () => {
+                        if (overlay && form.checkValidity()) {
+                            overlay.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Global Copy helper with Toast
+            window.copyToClipboard = function(text, successMsg = 'Copied to clipboard!') {
+                navigator.clipboard.writeText(text).then(() => {
+                    const toastEl = document.getElementById('appToast');
+                    const msgEl = document.getElementById('toastMessage');
+                    if (toastEl && msgEl) {
+                        msgEl.textContent = successMsg;
+                        const toast = new bootstrap.Toast(toastEl, { delay: 2500 });
+                        toast.show();
+                    }
+                }).catch(err => {
+                    console.error('Copy failed:', err);
+                });
+            };
+        })();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+

@@ -1,5 +1,5 @@
 import json
-from database import execute_query, fetch_all
+from database import execute_query, fetch_all, fetch_one
 from rich import print
 from rich.table import Table
 
@@ -208,7 +208,8 @@ def save_quiz(
     total_questions,
     accuracy,
     time_taken_seconds,
-    completed_at
+    completed_at,
+    signature=None
 ):
     query = """
         INSERT INTO quizzes
@@ -218,9 +219,10 @@ def save_quiz(
             total_questions,
             accuracy,
             time_taken_seconds,
-            completed_at
+            completed_at,
+            signature
         )
-        VALUES (%s, %s, %s, %s, %s, %s)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
 
     execute_query(
@@ -231,7 +233,8 @@ def save_quiz(
             total_questions,
             accuracy,
             time_taken_seconds,
-            completed_at
+            completed_at,
+            signature
         )
     )
 
@@ -295,5 +298,96 @@ def get_quiz_report_data():
         JOIN topics
             ON quizzes.topic_id = topics.id
         ORDER BY quizzes.id
+    """
+    return fetch_all(query)
+
+
+def get_quiz_by_id(quiz_id):
+    query = """
+        SELECT
+            id,
+            topic_id,
+            score,
+            total_questions,
+            accuracy,
+            time_taken_seconds,
+            completed_at,
+            signature
+        FROM quizzes
+        WHERE id = %s
+    """
+    return fetch_one(query, (quiz_id,))
+
+
+def verify_quiz_integrity(quiz_id):
+    """Verify the ECDSA signature of a finalized quiz result.
+
+    Returns:
+        dict with 'status' key:
+            'not_found' — quiz ID does not exist
+            'unsigned'  — quiz exists but has no signature
+            'valid'     — signature matches current quiz data
+            'tampered'  — signature does NOT match current quiz data
+    """
+    from cryptoManager import canonicalize_quiz, verify_signature
+
+    quiz = get_quiz_by_id(quiz_id)
+
+    if not quiz:
+        return {"status": "not_found"}
+
+    if not quiz["signature"]:
+        return {"status": "unsigned"}
+
+    canonical_bytes = canonicalize_quiz(
+        quiz_id=quiz["id"],
+        topic_id=quiz["topic_id"],
+        score=quiz["score"],
+        total_questions=quiz["total_questions"],
+        accuracy=quiz["accuracy"],
+        time_taken_seconds=quiz["time_taken_seconds"],
+        completed_at=quiz["completed_at"]
+    )
+
+    is_valid = verify_signature(canonical_bytes, quiz["signature"])
+
+    if is_valid:
+        return {"status": "valid"}
+    else:
+        return {"status": "tampered"}
+
+
+def get_recent_quizzes(limit=10):
+    query = """
+        SELECT
+            id,
+            topic_id,
+            score,
+            total_questions,
+            accuracy,
+            time_taken_seconds,
+            completed_at,
+            signature
+        FROM quizzes
+        ORDER BY completed_at DESC, id DESC
+        LIMIT %s
+    """
+    return fetch_all(query, (limit,))
+
+
+def get_all_signed_quizzes():
+    query = """
+        SELECT
+            id,
+            topic_id,
+            score,
+            total_questions,
+            accuracy,
+            time_taken_seconds,
+            completed_at,
+            signature
+        FROM quizzes
+        WHERE signature IS NOT NULL
+        ORDER BY completed_at DESC, id DESC
     """
     return fetch_all(query)

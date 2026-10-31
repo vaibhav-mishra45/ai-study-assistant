@@ -39,3 +39,14 @@ def fetch_all(query, params=None):
     finally:
         cursor.close()
         connection.close()
+
+def fetch_one(query, params=None):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+
+    try:
+        cursor.execute(query, params)
+        return cursor.fetchone()
+    finally:
+        cursor.close()
+        connection.close()

@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+    <div>
+        <div class="d-inline-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-ai"><i class="bi bi-stars me-1"></i>AI Workspace</span>
+            <span class="text-muted small">Updated in real-time</span>
+        </div>
+        <h1>Overview & Learning Progress</h1>
+        <p>Monitor your curriculum coverage, study velocity, and quiz mastery.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'session_start' %}" class="btn btn-outline-primary">
+            <i class="bi bi-stopwatch me-1"></i>Start Timer
+        </a>
+        <a href="{% url 'ai_quiz' %}" class="btn btn-primary">
+            <i class="bi bi-lightning-charge me-1"></i>New AI Quiz
+        </a>
+    </div>
+</div>
+
+<!-- Modern Stat Cards Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card-modern">
+            <div>
+                <div class="stat-avatar indigo">
+                    <i class="bi bi-book-half"></i>
+                </div>
+                <div class="stat-value">{{ subject_count }}</div>
+            </div>
+            <div class="stat-label">Subjects</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card-modern">
+            <div>
+                <div class="stat-avatar purple">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                </div>
+                <div class="stat-value">{{ topic_count }}</div>
+            </div>
+            <div class="stat-label">Topics</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card-modern">
+            <div>
+                <div class="stat-avatar emerald">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+                <div class="stat-value">{{ note_count }}</div>
+            </div>
+            <div class="stat-label">Notes</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card-modern">
+            <div>
+                <div class="stat-avatar cyan">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="stat-value">{{ total_study_minutes }}<span class="fs-6 text-muted fw-normal">m</span></div>
+            </div>
+            <div class="stat-label">Study Time</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card-modern">
+            <div>
+                <div class="stat-avatar rose">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+                <div class="stat-value">{{ quiz_count }}</div>
+            </div>
+            <div class="stat-label">Quizzes</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+        <div class="stat-card-modern">
+            <div>
+                <div class="stat-avatar amber">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                <div class="stat-value">{{ avg_accuracy }}<span class="fs-6 text-muted fw-normal">%</span></div>
+            </div>
+            <div class="stat-label">Avg Accuracy</div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Quick Launchpad Banner -->
+<div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.08) 100%);">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-lg-7 mb-3 mb-lg-0">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge badge-ai"><i class="bi bi-stars me-1"></i>Gemini 2.5 Powered</span>
+                    <span class="fw-semibold text-primary">Smart Study Suite</span>
+                </div>
+                <h4 class="fw-bold mb-1">Accelerate your study workflow with AI</h4>
+                <p class="text-muted mb-0 small">Generate comprehensive quizzes, solve conceptual doubts, summarize lengthy notes, or create custom study plans instantly.</p>
+            </div>
+            <div class="col-lg-5">
+                <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                    <a href="{% url 'ai_doubt' %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-patch-question me-1"></i>Ask Doubt
+                    </a>
+                    <a href="{% url 'ai_quiz' %}" class="btn btn-sm btn-ai">
+                        <i class="bi bi-lightning-charge me-1"></i>Take Quiz
+                    </a>
+                    <a href="{% url 'ai_summarize' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-card-text me-1"></i>Summarize
+                    </a>
+                    <a href="{% url 'ai_study_plan' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-calendar-check me-1"></i>Roadmap
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables: Recent Study Sessions & Recent Quizzes -->
+<div class="row g-4">
+    <!-- Recent Study Sessions -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-stopwatch text-primary fs-5"></i>
+                    <span>Recent Study Sessions</span>
+                </div>
+                <a href="{% url 'session_start' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-lg"></i>Record
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_sessions %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Subject & Topic</th>
+                                <th>Duration</th>
+                                <th class="text-end">Recorded</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in recent_sessions %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-main">{{ s.topic.name }}</div>
+                                    <div class="small text-muted">{{ s.topic.subject.name }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge-pill-soft primary">
+                                        <i class="bi bi-clock me-1"></i>{{ s.duration_minutes }} min
+                                    </span>
+                                </td>
+                                <td class="text-end text-muted small">
+                                    {{ s.start_time|date:"M d, H:i" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state-modern">
+                    <div class="empty-state-icon-box">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h5>No study sessions yet</h5>
+                    <p>Track your focused learning intervals and Pomodoros to analyze your study habits.</p>
+                    <a href="{% url 'session_start' %}" class="btn btn-sm btn-primary">Start a Session</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Quizzes -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-award text-success fs-5"></i>
+                    <span>Recent Quizzes</span>
+                </div>
+                <a href="{% url 'ai_quiz' %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-lg"></i>New Quiz
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_quizzes %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Topic</th>
+                                <th>Score</th>
+                                <th>Accuracy</th>
+                                <th class="text-end">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for q in recent_quizzes %}
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold text-main">{{ q.topic.name }}</div>
+                                    <div class="small text-muted">{{ q.topic.subject.name }}</div>
+                                </td>
+                                <td>
+                                    <span class="fw-bold">{{ q.score }}/{{ q.total_questions }}</span>
+                                </td>
+                                <td>
+                                    {% if q.accuracy >= 70 %}
+                                    <span class="badge-pill-soft success">{{ q.accuracy }}%</span>
+                                    {% elif q.accuracy >= 40 %}
+                                    <span class="badge-pill-soft warning">{{ q.accuracy }}%</span>
+                                    {% else %}
+                                    <span class="badge-pill-soft danger">{{ q.accuracy }}%</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end text-muted small">
+                                    {{ q.completed_at|date:"M d, H:i" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state-modern">
+                    <div class="empty-state-icon-box">
+                        <i class="bi bi-patch-question"></i>
+                    </div>
+                    <h5>No quiz attempts yet</h5>
+                    <p>Test your knowledge with 5 adaptive questions generated on any curriculum topic.</p>
+                    <a href="{% url 'ai_quiz' %}" class="btn btn-sm btn-primary">Generate First Quiz</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

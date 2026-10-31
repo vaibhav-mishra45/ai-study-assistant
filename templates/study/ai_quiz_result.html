@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Quiz Results: {{ topic_name }} — AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="page-header text-center mb-4">
+    <div class="d-inline-flex align-items-center gap-2 mb-1">
+        <span class="badge badge-ai"><i class="bi bi-award-fill me-1"></i>Assessment Finished</span>
+    </div>
+    <h1 class="display-6 fw-bold">Quiz Performance Review</h1>
+    <p class="text-muted">{{ subject_name }} &rsaquo; <strong>{{ topic_name }}</strong></p>
+</div>
+
+<div class="row justify-content-center mb-4">
+    <div class="col-lg-8">
+        <!-- Hero Score Banner -->
+        <div class="card text-center mb-4 border-0 shadow-lg" style="background: radial-gradient(circle at center, rgba(99, 102, 241, 0.12) 0%, var(--bg-card) 70%);">
+            <div class="card-body py-5">
+                <div class="mb-3">
+                    {% if accuracy >= 70 %}
+                    <div class="stat-avatar emerald mx-auto mb-2" style="width: 64px; height: 64px; font-size: 2rem;">
+                        <i class="bi bi-trophy-fill"></i>
+                    </div>
+                    <span class="badge-pill-soft success fs-6 px-3 py-1">Excellent Mastery!</span>
+                    {% elif accuracy >= 40 %}
+                    <div class="stat-avatar amber mx-auto mb-2" style="width: 64px; height: 64px; font-size: 2rem;">
+                        <i class="bi bi-star-half"></i>
+                    </div>
+                    <span class="badge-pill-soft warning fs-6 px-3 py-1">Good Effort &bull; Review Concepts</span>
+                    {% else %}
+                    <div class="stat-avatar rose mx-auto mb-2" style="width: 64px; height: 64px; font-size: 2rem;">
+                        <i class="bi bi-book-half"></i>
+                    </div>
+                    <span class="badge-pill-soft danger fs-6 px-3 py-1">Needs Revision</span>
+                    {% endif %}
+                </div>
+
+                <div class="display-2 fw-bold text-main mb-1">
+                    {{ score }} <span class="fs-4 text-muted fw-normal">/ {{ total }}</span>
+                </div>
+                <div class="fs-4 fw-semibold text-primary mb-3">
+                    Accuracy: {{ accuracy|floatformat:1 }}%
+                </div>
+                
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light border border-light-subtle small text-muted">
+                    <i class="bi bi-shield-lock-fill text-success"></i>
+                    <span>ECDSA Cryptographic Signature Applied & Recorded</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Breakdown -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-card-checklist text-primary fs-5"></i>
+                    <span>Question Breakdown</span>
+                </div>
+                <span class="text-muted small">5 Total Questions</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Question #</th>
+                                <th>Your Answer</th>
+                                <th>Correct Key</th>
+                                <th class="text-end">Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in review %}
+                            <tr class="{% if r.is_correct %}table-success-subtle{% else %}table-danger-subtle{% endif %}">
+                                <td class="fw-semibold">Question {{ r.number }}</td>
+                                <td>
+                                    <span class="quiz-letter-badge" style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                        {{ r.user_answer|default:"-" }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="quiz-letter-badge bg-primary text-white" style="width: 24px; height: 24px; font-size: 0.75rem;">
+                                        {{ r.correct_answer }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    {% if r.is_correct %}
+                                    <span class="badge-pill-soft success"><i class="bi bi-check-lg"></i>Correct</span>
+                                    {% else %}
+                                    <span class="badge-pill-soft danger"><i class="bi bi-x-lg"></i>Incorrect</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3">
+            <a href="{% url 'ai_quiz' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-repeat me-1"></i>Take Another Quiz
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'quiz_integrity' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-shield-check me-1"></i>Verify Integrity
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                    <i class="bi bi-grid-1x2-fill me-1"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
